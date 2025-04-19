@@ -1,0 +1,46 @@
+
+.semester-page {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  background-color:#f4f7fc;
+}
+
+.content {
+  text-align: center;
+}
+
+.semester-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.semester-box {
+  background-color: white;
+  padding: 60px;
+  font-weight: bold;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.semester-box:hover {
+  transform: scale(1.05);
+  background-color: #eef7ff;
+}
+
+@media (max-width: 768px) {
+  .semester-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .semester-grid {
+    grid-template-columns: 1fr;
+  }
+}

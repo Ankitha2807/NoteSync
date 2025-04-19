@@ -1,0 +1,139 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, #4a6889, #5b7a9d);
+    padding: 10px 40px;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .logo-section {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo {
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #000;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-links li {
+    cursor: pointer;
+    font-weight: 500;
+  }
+  /* Main container centers everything */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 80px);
+    background-color: #cbd8e1;
+  }
+  
+  /* Login card (box) */
+  .login-card {
+    position: relative;
+    background-color: #e0e0e0;
+    width: 420px;
+    padding: 80px 30px 30px;
+    border-radius: 30px 30px 0 0;
+    border: 1px solid #444;
+    border-bottom: none;
+    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center;
+  }
+  
+  /* Avatar icon circle */
+  .avatar {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: black;
+    color: white;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid #e0e0e0;
+  }
+  
+  /* Input fields */
+  .input-group {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  .input-icon {
+    background-color: white;
+    padding: 15px;
+    font-size: 20px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+  
+  .input-group input {
+    flex: 1;
+    padding: 15px;
+    background-color: black;
+    color: white;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+  
+  /* Checkbox and link */
+  .options {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: black;
+    padding: 0 5px;
+    margin-top: 10px;
+  }
+  
+  .options a {
+    color: black;
+    text-decoration: none;
+  }
+  
+  /* ✅ Final design of LOG IN button */
+  .login-btn {
+    width: 420px;
+    background-color: #e0e0e0;
+    color: black;
+    font-size: 32px;
+    font-weight: 500;
+    border: 1px solid black;
+    border-top: none;
+    border-radius: 0 0 30px 30px;
+    padding: 20px 0;
+    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  
+  .login-btn:hover {
+    background-color: #d0d0d0;
+  }
+  
