@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/NoteSync/static/css/main.2fdc23cb.css",
+    "main.js": "/NoteSync/static/js/main.ca58d2df.js",
+    "static/media/library-banner.jpg": "/NoteSync/static/media/library-banner.544ab30bd8374c9392c2.jpg",
+    "static/media/pyqs.png": "/NoteSync/static/media/pyqs.1103700abbbaca849188.png",
+    "static/media/quora.png": "/NoteSync/static/media/quora.2642f2671275c759d30b.png",
+    "static/media/logo.png": "/NoteSync/static/media/logo.5074f3c445bd320894d7.png",
+    "static/media/notes.png": "/NoteSync/static/media/notes.930ff5b0e8446a2b8940.png",
+    "index.html": "/NoteSync/index.html",
+    "main.2fdc23cb.css.map": "/NoteSync/static/css/main.2fdc23cb.css.map",
+    "main.ca58d2df.js.map": "/NoteSync/static/js/main.ca58d2df.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2fdc23cb.css",
+    "static/js/main.ca58d2df.js"
+  ]
+}
