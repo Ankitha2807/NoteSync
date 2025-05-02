@@ -49,19 +49,29 @@ const Quora = () => {
 
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <nav>
-          <ul>
-            <li><img src={notesIcon} alt="Notes" className="icon" />Course</li>
-            <li><img src={pyqsIcon} alt="PYQs" className="icon" />Question Paper</li>
-            <li><img src={aptitudeIcon} alt="Aptitude" className="icon" />Aptitude</li>
-            <li><img src={quoraIcon} alt="Quora" className="icon" />Quora</li>
-            <li onClick={() => navigate('/dashboard')}>
-              <span className="icon">🏠</span> Home
-            </li>
-            <li onClick={() => navigate('/')}><span className="icon">🚪</span> Log Out</li>
-          </ul>
-        </nav>
-      </aside>
+                    <nav>
+                      <ul>
+                        <li onClick={() => navigate('/semester')}>
+                          <img src={notesIcon} alt="Courses" className="icon" /> Courses
+                        </li>
+                        <li onClick={() => navigate('/pyqs')}>
+                          <img src={pyqsIcon} alt="PYQs" className="icon" /> PYQs
+                        </li>
+                        <li onClick={() => navigate('/aptitude')}>
+                          <img src={aptitudeIcon} alt="Aptitude" className="icon" /> Aptitude
+                        </li>
+                        <li onClick={() => navigate('/quora')}>
+                          <img src={quoraIcon} alt="Quora" className="icon" /> Quora
+                        </li>
+                        <li onClick={() => navigate('/dashboard')}>
+                          <span className="icon">🏠</span> Home
+                        </li>
+                        <li onClick={() => navigate('/')}>
+                          <span className="icon">🚪</span> Log Out
+                        </li>
+                      </ul>
+                    </nav>
+                  </aside>
 
       {/* Main Content */}
       <main className="main-content">

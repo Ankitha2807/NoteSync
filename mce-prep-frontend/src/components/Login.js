@@ -3,23 +3,82 @@ import "./Login.css";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaLock, FaUserCircle } from "react-icons/fa";
+import API from "../api/api";
 
 const Login = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [usn, setUsn] = useState("");
+  const [role, setRole] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const usnPattern = /^4MC\d{2}[A-Z]{2}\d{3}$/;
-    if (!usnPattern.test(usn)) {
-      setError("Invalid USN. Format must be 4MC22CS012");
+
+    // Reset error
+    setError("");
+
+    // Validate role selection
+    if (!role) {
+      setError("Please select User or Admin role");
       return;
     }
-    setError("");
-    // Navigate or authenticate here
-   
-    navigate('/Dashboard');
+
+    // Validate inputs
+    if (!userName.trim()) {
+      setError("Username is required");
+      return;
+    }
+
+    // Admin credentials check
+    if (role === "admin") {
+      if (userName !== "admin" || usn !== "4MC25CS196") {
+        setError("Invalid Admin Credentials");
+        return;
+      }
+    } else {
+      // User login validation
+      if (!usnPattern.test(usn)) {
+        setError("Invalid USN. Format must be 4MC22CS012");
+        return;
+      }
+    }
+
+    setIsLoading(true);
+
+    try {
+      console.log("Sending login request with data:", { userName, usn, role });
+
+      const response = await API.post("/auth/login", {
+        userName,
+        usn,
+        role,
+      });
+
+      console.log("Login successful:", response);
+
+      // Store user data
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("isLoggedIn", "true");
+
+      // Navigate to dashboard
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Login error:", err);
+
+      if (err.response) {
+        console.error("Error response data:", err.response.data);
+        setError(err.response.data.message || "Login failed");
+      } else if (err.request) {
+        console.error("No response from server.");
+        setError("No response from server. Check if the server is running.");
+      } else {
+        setError("An error occurred during login. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -67,6 +126,29 @@ const Login = () => {
             />
           </div>
 
+          <div className="role-selection">
+            <label>
+              <input
+                type="radio"
+                name="role"
+                value="user"
+                checked={role === "user"}
+                onChange={(e) => setRole(e.target.value)}
+              />{" "}
+              User
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="role"
+                value="admin"
+                checked={role === "admin"}
+                onChange={(e) => setRole(e.target.value)}
+              />{" "}
+              Admin
+            </label>
+          </div>
+
           <div className="options">
             <label>
               <input type="checkbox" /> Remember Me
@@ -75,9 +157,12 @@ const Login = () => {
           </div>
         </div>
 
-        <button className="login-btn" onClick={handleLogin} >
-          LOG IN
-          
+        <button
+          className="login-btn"
+          onClick={handleLogin}
+          disabled={isLoading}
+        >
+          {isLoading ? "LOGGING IN..." : "LOG IN"}
         </button>
 
         {error && (

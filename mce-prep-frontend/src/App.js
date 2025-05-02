@@ -5,7 +5,8 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Quora from './components/Quora';
 import Semester from './components/Semester';
-import Courses from './components/Courses'; 
+import Courses from './components/Courses';
+import Aptitude from './components/Aptitude';  
 
 const App = () => {
   return (
@@ -15,7 +16,8 @@ const App = () => {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/quora" element={<Quora/>}/>
       <Route path="/semester" element={<Semester />} />
-      <Route path="/courses/:semester" element={<Courses/>} /> {}
+      <Route path="/courses/:semester" element={<Courses/>} />
+      <Route path="/aptitude/" element={<Aptitude/>} /> {}
     </Routes>
   );
 };

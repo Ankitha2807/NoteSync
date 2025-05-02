@@ -1,0 +1,142 @@
+/* Aptitude.css */
+
+.aptitude-page {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f4f4; /* Change this to any background color or gradient */
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  
+ /* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: #f4f4f4;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 999;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  /* Hamburger */
+  .hamburger {
+    font-size: 30px;
+    padding: 10px;
+    cursor: pointer;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1000;
+    background: white;
+    border-radius: 50%;
+  }
+  
+  /* Main Content */
+  .main-content {
+    margin-left: 250px;
+    flex: 1;
+    transition: margin-left 0.3s ease-in-out;
+  }
+  
+  .sidebar:not(.open) ~ .main-content {
+    margin-left: 0;
+  }
+  
+  /* Other styles remain the same */
+  
+  
+  .sidebar:not(.open) ~ .main-content {
+    margin-left: 0;
+  }
+  
+  .search-box {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .search-box input {
+    padding: 10px;
+    width: 60%;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .topic-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .topic-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .topic-card .icon {
+    margin-bottom: 15px;
+  }
+  
+  .topic-card img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .topic-card p {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  @media (max-width: 768px) {
+    .hamburger {
+      display: block;
+    }
+  
+    .main-content {
+      margin-left: 0;
+    }
+  
+    .sidebar {
+      transform: translateX(-250px);
+    }
+  
+    .sidebar.open {
+      transform: translateX(0);
+    }
+  
+    .topic-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .topic-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .search-box input {
+      width: 80%;
+    }
+  }
+  

@@ -21,6 +21,10 @@ const Dashboard = () => {
   const goToSemester = () => {
     navigate('/semester'); 
   };
+
+  const goToAptitude = () => {
+    navigate('/aptitude'); 
+  };
   return (
     <div className="home">
       <header className="navbar">
@@ -64,7 +68,7 @@ const Dashboard = () => {
             <img src={pyqsIcon} alt="PYQs" />
             <p>PYQs</p>
           </div>
-          <div className="option">
+          <div className="option" onClick={goToAptitude} style={{ cursor: 'pointer' }}>
             <img src={aptitudeIcon} alt="Aptitude" />
             <p>Aptitude</p>
           </div>
