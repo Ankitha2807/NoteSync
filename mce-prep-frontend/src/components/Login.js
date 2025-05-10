@@ -60,7 +60,11 @@ const Login = () => {
 
       // Store user data
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("userName", userName);
+      localStorage.setItem("usn", usn);
+      localStorage.setItem("role", role);
       localStorage.setItem("isLoggedIn", "true");
+      
 
       // Navigate to dashboard
       navigate("/dashboard");

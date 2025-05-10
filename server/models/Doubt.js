@@ -1,27 +1,23 @@
+//server/models/Doubt.js
 const mongoose = require('mongoose');
 
-const doubtSchema = new mongoose.Schema(
-  {
-    title: { 
-      type: String, 
-      required: true 
-    },
-    description: { 
-      type: String, 
-      required: true 
-    },
-    postedBy: { 
-      type: String, 
-      required: true 
-    },
-    category: {
-      type: String,
-      enum: ['Supplementary Queries', 'Re-evaluation Doubts', 'Classrooms', 'Library Books'],
-      default: 'Supplementary Queries'
-    }
-  },
-  { timestamps: true }
-);
+// Answer schema as a subdocument
+const answerSchema = new mongoose.Schema({
+  userName: { type: String, required: true },
+  usn: { type: String, required: true },
+  role: { type: String, required: true },
+  answerText: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
 
-const Doubt = mongoose.model('Doubt', doubtSchema);
-module.exports = Doubt;
+// Main doubt schema
+const doubtSchema = new mongoose.Schema({
+  userName: { type: String, required: true },
+  usn: { type: String, required: true },
+  role: { type: String, required: true },
+  questionText: { type: String, required: true },
+  answers: [answerSchema],  // Array of answers
+  isResolved: { type: Boolean, default: false }
+}, { timestamps: true });
+
+module.exports = mongoose.model('Doubt', doubtSchema);

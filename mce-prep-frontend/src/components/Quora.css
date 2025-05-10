@@ -61,6 +61,9 @@
   width: 100%;
   padding: 20px;
   text-align: center;
+  margin-left: 0;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Category Buttons */
@@ -68,7 +71,8 @@
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin: 20px 0;
+  flex-wrap: wrap;
 }
 
 .category {
@@ -78,21 +82,47 @@
   padding: 10px 20px;
   font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+.category:hover {
+  background-color: #d5dbdb;
+}
+
+.category.active {
+  background-color: #2980b9;
+  color: white;
+  border-color: #2980b9;
+}
+
+/* Ask Doubt Section */
 .ask-doubt-section {
-  margin-top: 30px;
+  margin: 30px auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
 }
 
-.ask-doubt-section textarea {
-  width: 80%;
-  max-width: 600px;
+.ask-doubt-section h2 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.doubt-textarea {
+  width: 100%;
+  max-width: 700px;
   height: 100px;
-  padding: 10px;
+  padding: 15px;
   border-radius: 10px;
+  border: 1px solid #ddd;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 10px;
 }
 
 .ask-doubt-btn {
@@ -103,4 +133,265 @@
   padding: 10px 30px;
   border-radius: 10px;
   cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.ask-doubt-btn:hover {
+  background-color: #3498db;
+}
+
+/* Similar Doubt Alert */
+.similar-doubt-alert {
+  margin: 20px auto;
+  background-color: #f9f3cc;
+  border: 1px solid #f5e79e;
+  border-radius: 10px;
+  padding: 15px;
+  max-width: 800px;
+  text-align: left;
+}
+
+.similar-doubt-alert h3 {
+  color: #8a6d3b;
+  margin-bottom: 10px;
+}
+
+/* Doubts List */
+.doubts-list {
+  margin: 30px auto;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.doubts-list h2 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.doubt-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  border-left: 4px solid #3498db;
+  transition: transform 0.2s ease;
+}
+
+.doubt-card:hover {
+  transform: translateY(-2px);
+}
+
+.doubt-card.resolved {
+  border-left-color: #27ae60;
+}
+
+.doubt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.doubt-author {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.doubt-date {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.resolved-badge {
+  background-color: #27ae60;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.doubt-text {
+  margin-bottom: 15px;
+  color: #34495e;
+}
+
+.doubt-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.action-btn, .resolve-btn {
+  padding: 8px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.action-btn {
+  background-color: #f0f0f0;
+  color: #34495e;
+}
+
+.action-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.resolve-btn {
+  background-color: #27ae60;
+  color: white;
+}
+
+.resolve-btn:hover {
+  background-color: #2ecc71;
+}
+
+/* Expanded doubt section */
+.expanded-doubt {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.answers-section {
+  margin-bottom: 20px;
+}
+
+.answers-section h4 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.answer-card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.answer-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.answer-author {
+  font-weight: bold;
+  color: #34495e;
+}
+
+.answer-date {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+}
+
+.answer-text {
+  color: #2c3e50;
+}
+
+.no-answers-text {
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Reply form */
+.reply-form {
+  margin-top: 15px;
+}
+
+.reply-textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 10px;
+}
+
+.reply-btn {
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.reply-btn:hover {
+  background-color: #3498db;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.page-btn {
+  background-color: #ecf0f1;
+  border: 1px solid #bdc3c7;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  color: #7f8c8d;
+}
+
+/* Loading and error states */
+.loading-text, .error-text, .no-doubts-text {
+  color: #7f8c8d;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.error-text {
+  color: #c0392b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .categories {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .category {
+    width: 80%;
+  }
+  
+  .doubt-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .doubt-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .action-btn, .resolve-btn {
+    width: 100%;
+  }
 }
