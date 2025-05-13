@@ -1,3 +1,4 @@
+// server/routes/doubt.js
 const express = require('express');
 const router = express.Router();
 const Doubt = require('../models/Doubt');

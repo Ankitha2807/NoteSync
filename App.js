@@ -3,20 +3,30 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './components/Home';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import Quora from './components/Quora'; 
-import Semester from './pages/Semester'; // adjust path as needed
-
-
-
+import Quora from './components/Quora';
+import Semester from './components/Semester';
+import Courses from './components/Courses';
+import Documents from './components/Documents'; // Ensure proper import
+import Aptitude from './components/Aptitude';
+import API from './api/axios'; // Centralized API configuration
 
 const App = () => {
+  // Test API Integration (Optional, for Debugging)
+  
+
   return (
     <Routes>
+      {/* Core Pages */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/quora" element={<Quora />} /> 
-      <Route path="/semester" element={<Semester />} />{/* ✅ path is lowercase */}
+
+      {/* Feature-Specific Pages */}
+      <Route path="/quora" element={<Quora />} />
+      <Route path="/semester" element={<Semester />} />
+      <Route path="/courses/:semester" element={<Courses />} />
+      <Route path="/subjects/:subject/documents" element={<Documents />} /> {/* Ensure correct dynamic param */}
+      <Route path="/aptitude" element={<Aptitude />} />
     </Routes>
   );
 };

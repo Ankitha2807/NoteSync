@@ -1,15 +1,17 @@
-//server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
-const authMiddleware = require('./middleware/authMiddleware');
+const path = require('path');
+const fs = require('fs');
 
 // Import routes
 const authRoute = require('./routes/auth');
-const doubtRoute = require('./routes/doubt'); // Make sure this path is correct
+const testRoute = require('./routes/test');
+const documentRoute = require('./routes/document');
+const doubtRoute = require('./routes/doubt'); // Ensure the path is correct
 
 dotenv.config(); // Load environment variables
 
@@ -27,9 +29,21 @@ app.use((req, res, next) => {
   next();
 });
 
+// ------------------ STATIC FILES ------------------ //
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve static files from the uploads folder
+app.use('/uploads', express.static(uploadsDir));
+
 // ------------------ ROUTE SETUP ------------------ //
-app.use('/api/auth', authRoute);   // For user login/register
-app.use('/api/doubts', doubtRoute); // For asking/answering doubts
+app.use('/api/auth', authRoute);   // User login/register
+app.use('/api/test', testRoute);  // Test endpoint
+app.use('/api/documents', documentRoute); // Document management
+app.use('/api/doubts', doubtRoute); // Ask/answer doubts
 
 // Test route to verify the server is running
 app.get('/api/test', (req, res) => {
@@ -65,5 +79,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`Routes registered:\n- /api/auth\n- /api/doubts`);
+  console.log('Routes registered:\n- /api/auth\n- /api/test\n- /api/documents\n- /api/doubts');
 });
