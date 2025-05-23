@@ -37,7 +37,7 @@ const Dashboard = () => {
           <h1 className="title">NoteSync</h1>
         </div>
         <nav className="nav-links">
-          <button onClick={() => navigate('/')}>HOME</button>
+           <button>HOME</button>
           <button onClick={() => navigate('/about')}>ABOUT</button>
           <button onClick={() => navigate('/contact')}>CONTACT US</button>
           <button onClick={handleLogout}>LOG OUT</button>

@@ -47,7 +47,7 @@ const Semester = () => {
                   <li onClick={() => navigate('/semester')}>
                     <img src={notesIcon} alt="Courses" className="icon" /> Courses
                   </li>
-                  <li onClick={() => navigate('/pyqs')}>
+                  <li onClick={() => navigate('/semester')}>
                     <img src={pyqsIcon} alt="PYQs" className="icon" /> PYQs
                   </li>
                   <li onClick={() => navigate('/aptitude')}>

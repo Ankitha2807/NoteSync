@@ -7,10 +7,10 @@ import aptitudeIcon from '../assets/aptitude.png';
 import quoraIcon from '../assets/quora.png';
 
 // Inline icons
-const timeAndDistanceIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; 
-const profitAndLossIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; 
-const speedAndDistanceIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...";
-const percentageIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; 
+//const timeAndDistanceIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; 
+//const profitAndLossIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; 
+//const speedAndDistanceIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...";
+//const percentageIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; 
 
 const topicData = [
   { name: 'Time and Distance' },
@@ -52,10 +52,10 @@ const AptitudePage = () => {
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <nav>
           <ul>
-            <li onClick={() => navigate('/courses')}>
+            <li onClick={() => navigate('/semester')}>
               <img src={notesIcon} alt="Courses" className="icon" /> Courses
             </li>
-            <li onClick={() => navigate('/pyqs')}>
+            <li onClick={() => navigate('/semester')}>
               <img src={pyqsIcon} alt="PYQs" className="icon" /> PYQs
             </li>
             <li onClick={() => navigate('/aptitude')}>

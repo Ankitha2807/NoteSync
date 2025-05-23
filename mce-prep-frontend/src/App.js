@@ -8,6 +8,9 @@ import Semester from './components/Semester';
 import Courses from './components/Courses';
 import Documents from './components/Documents';
 import Aptitude from './components/Aptitude';
+import AptitudeQuiz from './components/AptitudeQuiz';
+import About from './components/About';        // ✅ Add About import
+import Contact from './components/Contact';    // ✅ Add Contact import
 
 // ✅ Corrected API import
 import API from './api/api';
@@ -29,6 +32,9 @@ const App = () => {
       <Route path="/courses/:semester" element={<Courses />} />
       <Route path="/subjects/:subject/documents" element={<Documents />} />
       <Route path="/aptitude" element={<Aptitude />} />
+      <Route path="/aptitude/:topic" element={<AptitudeQuiz />} />
+      <Route path="/about" element={<About />} />        {/* ✅ Add About route */}
+      <Route path="/contact" element={<Contact />} />    {/* ✅ Add Contact route */}
     </Routes>
   );
 };

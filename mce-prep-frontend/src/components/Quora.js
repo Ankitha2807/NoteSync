@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Quora.css';
 import notesIcon from '../assets/notes.png';
@@ -22,12 +22,8 @@ const Quora = () => {
   
   const navigate = useNavigate();
 
-  // Fetch doubts from API
-  useEffect(() => {
-    fetchDoubts();
-  }, [currentPage, selectedCategory]);
-
-  const fetchDoubts = async () => {
+  // Define fetchDoubts with useCallback to memoize it
+  const fetchDoubts = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -52,7 +48,12 @@ const Quora = () => {
       setError('Failed to load doubts. Please try again later.');
       setLoading(false);
     }
-  };
+  }, [currentPage, selectedCategory]);
+
+  // Fetch doubts from API with the memoized function in the dependency array
+  useEffect(() => {
+    fetchDoubts();
+  }, [fetchDoubts]);
 
   // Toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
@@ -249,7 +250,7 @@ const Quora = () => {
             <li onClick={() => navigate('/semester')}>
               <img src={notesIcon} alt="Courses" className="icon" /> Courses
             </li>
-            <li onClick={() => navigate('/pyqs')}>
+            <li onClick={() => navigate('/semester')}>
               <img src={pyqsIcon} alt="PYQs" className="icon" /> PYQs
             </li>
             <li onClick={() => navigate('/aptitude')}>
@@ -273,38 +274,24 @@ const Quora = () => {
         <h1>Quora Section</h1>
         
         {/* Categories */}
-        <div className="categories">
-          <button 
-            className={`category ${selectedCategory === 'All' ? 'active' : ''}`}
-            onClick={() => handleCategorySelect('All')}
-          >
-            All Doubts
-          </button>
-          <button 
-            className={`category ${selectedCategory === 'Supplementary' ? 'active' : ''}`}
-            onClick={() => handleCategorySelect('Supplementary')}
-          >
-            Supplementary Queries
-          </button>
-          <button 
-            className={`category ${selectedCategory === 'Reevaluation' ? 'active' : ''}`}
-            onClick={() => handleCategorySelect('Reevaluation')}
-          >
-            Re-evaluation Doubts
-          </button>
-          <button 
-            className={`category ${selectedCategory === 'Classrooms' ? 'active' : ''}`}
-            onClick={() => handleCategorySelect('Classrooms')}
-          >
-            Classrooms
-          </button>
-          <button 
-            className={`category ${selectedCategory === 'Library' ? 'active' : ''}`}
-            onClick={() => handleCategorySelect('Library')}
-          >
-            Library Books
-          </button>
-        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+  <button 
+    style={{ padding: '8px 16px', cursor: 'pointer' }}
+    className={`category ${selectedCategory === 'All' ? 'active' : ''}`}
+    onClick={() => handleCategorySelect('All')}
+  >
+    All Doubts
+  </button>
+
+  <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+    <p>Supplementary</p>
+    <p>Re-evaluation</p>
+    <p>Classroom</p>
+    <p>Library</p>
+  </div>
+</div>
+
+
 
         {/* Ask Doubt */}
         <div className="ask-doubt-section">
