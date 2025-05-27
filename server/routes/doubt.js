@@ -182,4 +182,118 @@ router.patch('/:id/resolve', authMiddleware, async (req, res) => {
   }
 });
 
+// Alternative POST route to delete a doubt (Admin only) - for compatibility
+router.post('/:id/delete', authMiddleware, async (req, res) => {
+  const { usn, role } = req.body;
+  
+  try {
+    console.log('Delete request received for doubt:', req.params.id);
+    console.log('User data:', { usn, role });
+    
+    // Check if user is admin
+    const isAdmin = usn === process.env.ADMIN_USN || role === 'admin';
+    console.log('Is admin:', isAdmin, 'Admin USN:', process.env.ADMIN_USN);
+    
+    if (!isAdmin) {
+      return res.status(403).json({ message: 'Only admins can delete doubts' });
+    }
+    
+    const doubt = await Doubt.findById(req.params.id);
+    
+    if (!doubt) {
+      return res.status(404).json({ message: 'Doubt not found' });
+    }
+    
+    await Doubt.findByIdAndDelete(req.params.id);
+    
+    res.status(200).json({ 
+      message: 'Doubt deleted successfully',
+      doubtId: req.params.id
+    });
+  } catch (error) {
+    console.error('❌ Error deleting doubt:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// 7. DELETE route to delete a doubt (Admin only)
+router.delete('/:id', authMiddleware, async (req, res) => {
+  const { usn, role } = req.body;
+  
+  try {
+    // Check if user is admin
+    const isAdmin = usn === process.env.ADMIN_USN || role === 'admin';
+    
+    if (!isAdmin) {
+      return res.status(403).json({ message: 'Only admins can delete doubts' });
+    }
+    
+    const doubt = await Doubt.findById(req.params.id);
+    
+    if (!doubt) {
+      return res.status(404).json({ message: 'Doubt not found' });
+    }
+    
+    await Doubt.findByIdAndDelete(req.params.id);
+    
+    res.status(200).json({ 
+      message: 'Doubt deleted successfully',
+      doubtId: req.params.id
+    });
+  } catch (error) {
+    console.error('❌ Error deleting doubt:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// 8. DELETE route to delete an answer from a doubt (Admin only)
+router.delete('/:doubtId/answer/:answerId', authMiddleware, async (req, res) => {
+  const { usn, role } = req.body;
+  
+  try {
+    // Check if user is admin
+    const isAdmin = usn === process.env.ADMIN_USN || role === 'admin';
+    
+    if (!isAdmin) {
+      return res.status(403).json({ message: 'Only admins can delete answers' });
+    }
+    
+    const doubt = await Doubt.findById(req.params.doubtId);
+    
+    if (!doubt) {
+      return res.status(404).json({ message: 'Doubt not found' });
+    }
+    
+    // Remove the answer from the answers array
+    doubt.answers = doubt.answers.filter(answer => answer._id.toString() !== req.params.answerId);
+    
+    await doubt.save();
+    
+    res.status(200).json({ 
+      message: 'Answer deleted successfully',
+      doubt
+    });
+  } catch (error) {
+    console.error('❌ Error deleting answer:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Debug route to check if routes are working
+router.get('/debug/routes', (req, res) => {
+  res.json({ 
+    message: 'Doubt routes are working',
+    availableRoutes: [
+      'GET /doubts/search',
+      'POST /doubts/ask',
+      'GET /doubts/',
+      'GET /doubts/:id',
+      'POST /doubts/:id/answer',
+      'PATCH /doubts/:id/resolve',
+      'DELETE /doubts/:id',
+      'DELETE /doubts/:doubtId/answer/:answerId'
+    ]
+  });
+});
+
 module.exports = router;

@@ -1,3 +1,4 @@
+// mce-prep-frontend/src/components/Documents.js
 import axios from 'axios';
 
 const API = axios.create({ 
@@ -25,3 +26,16 @@ export const getDocuments = (subject) => {
 
 export const downloadDocument = (id) =>
   API.get(`/download/${id}`, { responseType: 'blob' });
+
+// New functions for admin
+export const deleteDocument = (id) =>
+  API.delete(`/${id}`);
+
+export const getAllDocuments = () =>
+  API.get('/admin/all');
+
+// Helper function to check if user is admin
+export const isUserAdmin = () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  return user.role === 'admin';
+};

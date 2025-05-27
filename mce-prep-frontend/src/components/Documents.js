@@ -1,14 +1,20 @@
+// mce-prep-frontend/src/components/Documents.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Documents.css';
 
-import { uploadDocument, getDocuments, downloadDocument } from '../api/documentService';
+import { 
+  uploadDocument, 
+  getDocuments, 
+  downloadDocument, 
+  deleteDocument, 
+  isUserAdmin 
+} from '../api/documentService';
 
 import notesIcon from '../assets/notes.png';
 import pyqsIcon from '../assets/pyqs.png';
 import aptitudeIcon from '../assets/aptitude.png';
 import quoraIcon from '../assets/quora.png';
-
 
 const Documents = () => {
   const { subject } = useParams();
@@ -20,10 +26,17 @@ const Documents = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // For delete confirmation
 
   // Sidebar state and toggle
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+
+  useEffect(() => {
+    // Check if user is admin
+    setIsAdmin(isUserAdmin());
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -123,9 +136,34 @@ const Documents = () => {
     }
   };
 
+  const handleDeleteConfirm = (doc) => {
+    setDeleteConfirm(doc);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      await deleteDocument(deleteConfirm._id);
+      setDocuments(documents.filter(doc => doc._id !== deleteConfirm._id));
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error('Error deleting document:', err);
+      setError('Failed to delete document. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirm(null);
+  };
+
   return (
     <div className="documents-page">
-
       {/* Hamburger Icon */}
       <div className="hamburger" onClick={toggleSidebar} style={{ cursor: 'pointer' }}>
         ☰
@@ -159,7 +197,10 @@ const Documents = () => {
 
       {/* Main Content */}
       <div className="main-content documents-container">
-        <h1>Documents for {subject}</h1>
+        <h1>
+          Documents for {subject}
+          {isAdmin && <span className="admin-badge"> (Admin Mode)</span>}
+        </h1>
 
         {error && <div className="error-message">{error}</div>}
         {uploadSuccess && <div className="success-message">Document uploaded successfully!</div>}
@@ -180,7 +221,7 @@ const Documents = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="docFile">Select File:</label>
+              <label htmlFor="docFile">Select File(it should be of .pdf format):</label>
               <input
                 type="file"
                 id="docFile"
@@ -206,24 +247,62 @@ const Documents = () => {
           {documents.length > 0 && (
             <ul>
               {documents.map((doc) => (
-                <li key={doc._id}>
+                <li key={doc._id} className={isAdmin ? 'admin-mode' : ''}>
                   <div className="document-info">
                     <span className="document-name">{doc.name}</span>
                     <span className="document-date">
                       {new Date(doc.uploadedAt).toLocaleDateString()}
                     </span>
+                    {isAdmin && (
+                      <span className="document-uploader">
+                        By: {doc.userName} ({doc.usn})
+                      </span>
+                    )}
                   </div>
-                  <button
-                    onClick={() => handleDownload(doc._id, doc.name)}
-                    className="download-button"
-                  >
-                    Download
-                  </button>
+                  <div className="document-actions">
+                    <button
+                      onClick={() => handleDownload(doc._id, doc.name)}
+                      className="download-button"
+                    >
+                      Download
+                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDeleteConfirm(doc)}
+                        className="delete-button"
+                        disabled={loading}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {deleteConfirm && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Confirm Delete</h3>
+              <p>
+                Are you sure you want to delete "{deleteConfirm.name}"?
+                <br />
+                This action cannot be undone.
+              </p>
+              <div className="modal-actions">
+                <button onClick={handleDelete} className="confirm-delete" disabled={loading}>
+                  {loading ? 'Deleting...' : 'Yes, Delete'}
+                </button>
+                <button onClick={cancelDelete} className="cancel-delete" disabled={loading}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

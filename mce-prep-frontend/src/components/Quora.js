@@ -22,6 +22,14 @@ const Quora = () => {
   
   const navigate = useNavigate();
 
+  // Get logged-in user details from localStorage
+  const userName = localStorage.getItem('userName');
+  const usn = localStorage.getItem('usn');
+  const role = localStorage.getItem('role');
+  
+  // Check if user is admin
+  const isAdmin = usn === '4MC25CS196' || role === 'admin';
+
   // Define fetchDoubts with useCallback to memoize it
   const fetchDoubts = useCallback(async () => {
     setLoading(true);
@@ -81,11 +89,6 @@ const Quora = () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, [isSidebarOpen]);
-
-  // Get logged-in user details from localStorage
-  const userName = localStorage.getItem('userName');
-  const usn = localStorage.getItem('usn');
-  const role = localStorage.getItem('role');
 
   // Submit doubt
   const handleSubmit = async () => {
@@ -220,6 +223,85 @@ const Quora = () => {
     }
   };
 
+  // Delete doubt (Admin only)
+  const handleDeleteDoubt = async (doubtId) => {
+    if (!isAdmin) {
+      alert('Only admins can delete doubts.');
+      return;
+    }
+
+    if (!window.confirm('Are you sure you want to delete this doubt? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      console.log('Attempting to delete doubt:', doubtId);
+      console.log('User data:', { usn, role });
+
+      // Try DELETE method first
+      let response;
+      try {
+        response = await API.delete(`/doubts/${doubtId}`, {
+          data: { usn, role }
+        });
+      } catch (deleteError) {
+        console.log('DELETE method failed, trying POST method');
+        // Fallback to POST method
+        response = await API.post(`/doubts/${doubtId}/delete`, {
+          usn, 
+          role
+        });
+      }
+
+      console.log('Delete response:', response);
+
+      // Remove the doubt from local state
+      const updatedDoubts = doubts.filter(d => d._id !== doubtId);
+      setDoubts(updatedDoubts);
+      
+      alert('Doubt deleted successfully!');
+    } catch (error) {
+      console.error('❌ Error deleting doubt:', error);
+      console.error('Error response:', error.response);
+      alert('Failed to delete doubt. ' + (error.response?.data?.message || 'Please try again.'));
+    }
+  };
+
+  // Delete answer (Admin only)
+  const handleDeleteAnswer = async (doubtId, answerId) => {
+    if (!isAdmin) {
+      alert('Only admins can delete answers.');
+      return;
+    }
+
+    if (!window.confirm('Are you sure you want to delete this answer? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await API.delete(`/doubts/${doubtId}/answer/${answerId}`, {
+        data: { usn, role }
+      });
+
+      // Ensure the doubt in the response has an answers array
+      const processedDoubt = {
+        ...response.data.doubt,
+        answers: response.data.doubt.answers || []
+      };
+      
+      // Update the doubt in the local state
+      const updatedDoubts = doubts.map(d => 
+        d._id === doubtId ? processedDoubt : d
+      );
+      setDoubts(updatedDoubts);
+      
+      alert('Answer deleted successfully!');
+    } catch (error) {
+      console.error('❌ Error deleting answer:', error);
+      alert('Failed to delete answer. ' + (error.response?.data?.message || 'Please try again.'));
+    }
+  };
+
   // Format date for display
   const formatDate = (dateString) => {
     try {
@@ -271,27 +353,25 @@ const Quora = () => {
 
       {/* Main content */}
       <main className="main-content">
-        <h1>Quora Section</h1>
+        <h1>Quora Section {isAdmin && <span className="admin-badge">👑 Admin</span>}</h1>
         
         {/* Categories */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-  <button 
-    style={{ padding: '8px 16px', cursor: 'pointer' }}
-    className={`category ${selectedCategory === 'All' ? 'active' : ''}`}
-    onClick={() => handleCategorySelect('All')}
-  >
-    All Doubts
-  </button>
+          <button 
+            style={{ padding: '8px 16px', cursor: 'pointer' }}
+            className={`category ${selectedCategory === 'All' ? 'active' : ''}`}
+            onClick={() => handleCategorySelect('All')}
+          >
+            All Doubts
+          </button>
 
-  <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-    <p>Supplementary</p>
-    <p>Re-evaluation</p>
-    <p>Classroom</p>
-    <p>Library</p>
-  </div>
-</div>
-
-
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+            <p>Supplementary</p>
+            <p>Re-evaluation</p>
+            <p>Classroom</p>
+            <p>Library</p>
+          </div>
+        </div>
 
         {/* Ask Doubt */}
         <div className="ask-doubt-section">
@@ -356,9 +436,20 @@ const Quora = () => {
                   className={`doubt-card ${doubt.isResolved ? 'resolved' : ''}`}
                 >
                   <div className="doubt-header">
-                    <span className="doubt-author">Asked by: {doubt.userName} ({doubt.role})</span>
-                    <span className="doubt-date">{formatDate(doubt.createdAt)}</span>
-                    {doubt.isResolved && <span className="resolved-badge">Resolved</span>}
+                    <div className="doubt-info">
+                      <span className="doubt-author">Asked by: {doubt.userName} ({doubt.role})</span>
+                      <span className="doubt-date">{formatDate(doubt.createdAt)}</span>
+                      {doubt.isResolved && <span className="resolved-badge">Resolved</span>}
+                    </div>
+                    {isAdmin && (
+                      <button 
+                        className="delete-btn admin-delete"
+                        onClick={() => handleDeleteDoubt(doubt._id)}
+                        title="Delete this doubt"
+                      >
+                        🗑️
+                      </button>
+                    )}
                   </div>
                   
                   <p className="doubt-text">{doubt.questionText}</p>
@@ -392,10 +483,21 @@ const Quora = () => {
                           {doubt.answers.map((answer, idx) => (
                             <div key={idx} className="answer-card">
                               <div className="answer-header">
-                                <span className="answer-author">
-                                  {answer.userName} ({answer.role})
-                                </span>
-                                <span className="answer-date">{formatDate(answer.createdAt)}</span>
+                                <div className="answer-info">
+                                  <span className="answer-author">
+                                    {answer.userName} ({answer.role})
+                                  </span>
+                                  <span className="answer-date">{formatDate(answer.createdAt)}</span>
+                                </div>
+                                {isAdmin && (
+                                  <button 
+                                    className="delete-btn admin-delete answer-delete"
+                                    onClick={() => handleDeleteAnswer(doubt._id, answer._id)}
+                                    title="Delete this answer"
+                                  >
+                                    🗑️
+                                  </button>
+                                )}
                               </div>
                               <p className="answer-text">{answer.answerText}</p>
                             </div>

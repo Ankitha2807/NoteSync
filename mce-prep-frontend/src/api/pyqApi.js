@@ -1,24 +1,58 @@
+// mce-prep-frontend/src/api/pyqApi.js
 import axios from 'axios';
 
-const uploadPYQ = async (file, name, subject, userName, usn, role) => {
-  const formData = new FormData();
-  formData.append('file', file); // Must match multer field name
-  formData.append('name', name);
-  formData.append('subject', subject);
-  formData.append('userName', userName);
-  formData.append('usn', usn);
-  formData.append('role', role);
+const API = axios.create({ 
+  baseURL: 'http://localhost:5000/api/pyq',
+  timeout: 10000,
+});
 
-  try {
-    const response = await axios.post('http://localhost:5000/api/pyqs/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    console.log('✅ PYQ uploaded:', response.data);
-  } catch (err) {
-    console.error('❌ Upload failed:', err);
+// Add request interceptor to include user info
+API.interceptors.request.use((config) => {
+  const userName = localStorage.getItem('userName');
+  const usn = localStorage.getItem('usn');
+  const role = localStorage.getItem('role');
+  
+  if (userName && usn && role && config.method !== 'get') {
+    if (!config.data) {
+      config.data = {};
+    }
+    
+    if (typeof config.data === 'string') {
+      try {
+        config.data = JSON.parse(config.data);
+      } catch (e) {
+        console.error('Error parsing config.data string:', e);
+      }
+    }
+    
+    config.data.userName = userName;
+    config.data.usn = usn;
+    config.data.role = role;
   }
+  
+  return config;
+}, (error) => Promise.reject(error));
+
+export const uploadPyq = (formData) =>
+  API.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+
+export const getPyqs = (subject) => {
+  const encodedSubject = encodeURIComponent(subject);
+  return API.get(`/${encodedSubject}`);
 };
 
-export default uploadPYQ;
+export const downloadPyq = (id) =>
+  API.get(`/download/${id}`, { responseType: 'blob' });
+
+// Admin functions
+export const deletePyq = (id) => {
+  const role = localStorage.getItem('role');
+  return API.delete(`/${id}`, { data: { role } });
+};
+
+export const getAllPyqs = () => {
+  const role = localStorage.getItem('role');
+  return API.get(`/admin/all?role=${role}`);
+};

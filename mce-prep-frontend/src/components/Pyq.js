@@ -1,6 +1,7 @@
+// mce-prep-frontend/src/components/Pyq.js
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import './Courses.css';
+import './Pyq.css';
 import { FaNetworkWired, FaRobot, FaProjectDiagram, FaBrain, FaSearch } from 'react-icons/fa';
 
 const subjectData = {
@@ -18,24 +19,24 @@ const subjectData = {
   ],
 };
 
-
-const CoursesPage = () => {
+const Pyq = () => {
   const { semester } = useParams();
   const navigate = useNavigate();
   const subjects = subjectData[semester] || [];
 
+  // ✅ Route to /pyqs/:courseName instead of /subjects/:subject/documents
   const handleSubjectClick = (subjectName) => {
-    navigate(`/subjects/${encodeURIComponent(subjectName)}/documents`);
+    navigate(`/pyqs/${encodeURIComponent(subjectName)}`);
   };
 
   return (
     <div className="courses-page">
-      <div className="sidebar">{/* Add Sidebar here */}</div>
+      <div className="sidebar">{/* Optional sidebar */}</div>
       <div className="main-content">
-        <h1>Courses</h1>
+        <h1>PYQs - Semester {semester}</h1>
         <div className="search-box">
           <FaSearch className="search-icon" />
-          <input type="text" placeholder="Search courses..." />
+          <input type="text" placeholder="Search PYQ subjects..." />
         </div>
         <div className="course-grid">
           {subjects.map((subject, i) => (

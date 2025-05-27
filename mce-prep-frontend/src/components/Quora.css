@@ -398,3 +398,69 @@
   }
 }
 
+/* Admin-specific styles */
+.admin-badge {
+  color: #ff6b35;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.admin-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.admin-delete:hover {
+  background-color: #c82333;
+}
+
+.answer-delete {
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.doubt-header, .answer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.doubt-info, .answer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .doubt-header, .answer-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .admin-delete {
+    align-self: flex-end;
+  }
+}
