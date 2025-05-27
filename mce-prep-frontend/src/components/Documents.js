@@ -8,7 +8,8 @@ import {
   getDocuments, 
   downloadDocument, 
   deleteDocument, 
-  isUserAdmin 
+  isUserAdmin,
+  verifyAdminCredentials
 } from '../api/documentService';
 
 import notesIcon from '../assets/notes.png';
@@ -27,7 +28,9 @@ const Documents = () => {
   const [error, setError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState(null); // For delete confirmation
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
 
   // Sidebar state and toggle
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -138,18 +141,25 @@ const Documents = () => {
 
   const handleDeleteConfirm = (doc) => {
     setDeleteConfirm(doc);
+    setShowPasswordPrompt(true);
+    setAdminPassword('');
   };
 
-  const handleDelete = async () => {
-    if (!deleteConfirm) return;
+  const handlePasswordSubmit = async () => {
+    if (!verifyAdminCredentials(adminPassword)) {
+      setError('Invalid admin password');
+      return;
+    }
 
     setLoading(true);
     setError('');
 
     try {
-      await deleteDocument(deleteConfirm._id);
+      await deleteDocument(deleteConfirm._id, adminPassword);
       setDocuments(documents.filter(doc => doc._id !== deleteConfirm._id));
       setDeleteConfirm(null);
+      setShowPasswordPrompt(false);
+      setAdminPassword('');
     } catch (err) {
       console.error('Error deleting document:', err);
       setError('Failed to delete document. Please try again.');
@@ -160,6 +170,8 @@ const Documents = () => {
 
   const cancelDelete = () => {
     setDeleteConfirm(null);
+    setShowPasswordPrompt(false);
+    setAdminPassword('');
   };
 
   return (
@@ -221,7 +233,7 @@ const Documents = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="docFile">Select File(it should be of .pdf format):</label>
+              <label htmlFor="docFile">Select File (it should be of .pdf format):</label>
               <input
                 type="file"
                 id="docFile"
@@ -282,19 +294,28 @@ const Documents = () => {
           )}
         </div>
 
-        {/* Delete Confirmation Modal */}
-        {deleteConfirm && (
+        {/* Password Prompt Modal */}
+        {showPasswordPrompt && deleteConfirm && (
           <div className="modal-overlay">
             <div className="modal">
-              <h3>Confirm Delete</h3>
-              <p>
-                Are you sure you want to delete "{deleteConfirm.name}"?
-                <br />
-                This action cannot be undone.
-              </p>
+              <h3>Admin Verification Required</h3>
+              <p>Enter admin password to delete "{deleteConfirm.name}":</p>
+              <div className="password-input-group">
+                <input
+                  type="password"
+                  placeholder="Enter admin password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
               <div className="modal-actions">
-                <button onClick={handleDelete} className="confirm-delete" disabled={loading}>
-                  {loading ? 'Deleting...' : 'Yes, Delete'}
+                <button 
+                  onClick={handlePasswordSubmit} 
+                  className="confirm-delete" 
+                  disabled={loading || !adminPassword}
+                >
+                  {loading ? 'Deleting...' : 'Delete Document'}
                 </button>
                 <button onClick={cancelDelete} className="cancel-delete" disabled={loading}>
                   Cancel

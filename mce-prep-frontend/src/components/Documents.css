@@ -238,19 +238,15 @@
     margin-left: 0;
   }
 }
-/* Admin-specific styles */
+/* Add these styles to your Documents.css file */
+
 .admin-badge {
-  background: #ff4444;
+  background-color: #ff6b6b;
   color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
   font-size: 0.8em;
   margin-left: 10px;
-}
-
-.documents-list li.admin-mode {
-  border-left: 4px solid #ff4444;
-  background: #fff5f5;
 }
 
 .document-actions {
@@ -260,38 +256,32 @@
 }
 
 .delete-button {
-  background: #ff4444;
+  background-color: #dc3545;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.9em;
+  transition: background-color 0.2s;
 }
 
 .delete-button:hover {
-  background: #cc3333;
+  background-color: #c82333;
 }
 
 .delete-button:disabled {
-  background: #ccc;
+  background-color: #6c757d;
   cursor: not-allowed;
 }
 
-.document-uploader {
-  font-size: 0.9em;
-  color: #666;
-  font-style: italic;
-}
-
-/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -302,31 +292,43 @@
   background: white;
   padding: 30px;
   border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   width: 90%;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .modal h3 {
   margin-top: 0;
-  color: #ff4444;
+  color: #333;
 }
 
 .modal p {
+  margin: 15px 0;
+  color: #666;
+}
+
+.password-input-group {
   margin: 20px 0;
-  line-height: 1.5;
+}
+
+.password-input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box;
 }
 
 .modal-actions {
   display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 25px;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
 }
 
 .confirm-delete {
-  background: #ff4444;
+  background-color: #dc3545;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -335,12 +337,17 @@
 }
 
 .confirm-delete:hover {
-  background: #cc3333;
+  background-color: #c82333;
+}
+
+.confirm-delete:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
 }
 
 .cancel-delete {
-  background: #ccc;
-  color: #333;
+  background-color: #6c757d;
+  color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
@@ -348,11 +355,16 @@
 }
 
 .cancel-delete:hover {
-  background: #999;
+  background-color: #5a6268;
 }
 
-.confirm-delete:disabled,
-.cancel-delete:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.admin-mode {
+  border-left: 3px solid #ff6b6b;
+  padding-left: 10px;
+}
+
+.document-uploader {
+  font-size: 0.9em;
+  color: #666;
+  font-style: italic;
 }
