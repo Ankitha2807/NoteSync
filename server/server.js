@@ -1,3 +1,4 @@
+//server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -11,17 +12,18 @@ const fs = require('fs');
 const authRoute = require('./routes/auth');
 const testRoute = require('./routes/test');
 const documentRoute = require('./routes/document');
-const doubtRoute = require('./routes/doubt'); // Ensure the path is correct
+const pyqRoute = require('./routes/pyq');
+const doubtRoute = require('./routes/doubt');
 
-dotenv.config(); // Load environment variables
+dotenv.config();
 
 const app = express();
 
 // ------------------ MIDDLEWARE SETUP ------------------ //
-app.use(helmet()); // Adds security headers
-app.use(cors({ origin: '*' })); // Enable CORS
-app.use(express.json()); // Parse incoming JSON
-app.use(morgan('dev')); // Log HTTP requests
+app.use(helmet());
+app.use(cors({ origin: '*' }));
+app.use(express.json());
+app.use(morgan('dev'));
 
 // Debug incoming requests
 app.use((req, res, next) => {
@@ -30,20 +32,28 @@ app.use((req, res, next) => {
 });
 
 // ------------------ STATIC FILES ------------------ //
-// Create uploads directory if it doesn't exist
+// Create uploads directories if they don't exist
 const uploadsDir = path.join(__dirname, '..', 'uploads');
+const pyqUploadsDir = path.join(__dirname, '..', 'pyq-uploads');
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Serve static files from the uploads folder
+if (!fs.existsSync(pyqUploadsDir)) {
+  fs.mkdirSync(pyqUploadsDir, { recursive: true });
+}
+
+// Serve static files from both upload folders
 app.use('/uploads', express.static(uploadsDir));
+app.use('/pyq-uploads', express.static(pyqUploadsDir));
 
 // ------------------ ROUTE SETUP ------------------ //
-app.use('/api/auth', authRoute);   // User login/register
-app.use('/api/test', testRoute);  // Test endpoint
-app.use('/api/documents', documentRoute); // Document management
-app.use('/api/doubts', doubtRoute); // Ask/answer doubts
+app.use('/api/auth', authRoute);
+app.use('/api/test', testRoute);
+app.use('/api/documents', documentRoute);
+app.use('/api/pyqs', pyqRoute);
+app.use('/api/doubts', doubtRoute);
 
 // Test route to verify the server is running
 app.get('/api/test', (req, res) => {
@@ -59,7 +69,7 @@ mongoose
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1); // Stop the app if DB connection fails
+    process.exit(1);
   });
 
 // ------------------ ERROR HANDLING ------------------ //
@@ -79,5 +89,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log('Routes registered:\n- /api/auth\n- /api/test\n- /api/documents\n- /api/doubts');
+  console.log('Routes registered:\n- /api/auth\n- /api/test\n- /api/documents\n- /api/pyqs\n- /api/doubts');
 });

@@ -9,10 +9,14 @@ import Courses from './components/Courses';
 import Documents from './components/Documents';
 import Aptitude from './components/Aptitude';
 import AptitudeQuiz from './components/AptitudeQuiz';
-import About from './components/About';        // ✅ Add About import
-import Contact from './components/Contact';    // ✅ Add Contact import
+import About from './components/About';
+import Contact from './components/Contact';
 
-// ✅ Corrected API import
+// PYQs Components
+import PYQSemester from './components/PYQSemester';
+import PYQCourses from './components/PYQCourses';
+import PYQDocuments from './components/PYQDocuments';
+
 import API from './api/api';
 
 const App = () => {
@@ -28,13 +32,21 @@ const App = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/quora" element={<Quora />} />
+      
+      {/* Documents Routes */}
       <Route path="/semester" element={<Semester />} />
       <Route path="/courses/:semester" element={<Courses />} />
       <Route path="/subjects/:subject/documents" element={<Documents />} />
+      
+      {/* PYQs Routes */}
+      <Route path="/pyq-semester" element={<PYQSemester />} />
+      <Route path="/pyq-courses/:semester" element={<PYQCourses />} />
+      <Route path="/pyq-subjects/:subject/documents" element={<PYQDocuments />} />
+      
       <Route path="/aptitude" element={<Aptitude />} />
       <Route path="/aptitude/:topic" element={<AptitudeQuiz />} />
-      <Route path="/about" element={<About />} />        {/* ✅ Add About route */}
-      <Route path="/contact" element={<Contact />} />    {/* ✅ Add Contact route */}
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
     </Routes>
   );
 };

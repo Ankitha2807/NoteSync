@@ -1,35 +1,16 @@
-//mce-prep-frontend/src/components/CoursesPage.js
+// mce-prep-frontend/src/components/PYQSemester.js
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import './Courses.css';
-import { FaNetworkWired, FaRobot, FaProjectDiagram, FaBrain, FaSearch } from 'react-icons/fa';
-
+import { useNavigate } from 'react-router-dom';
+import './Semester.css';
 import notesIcon from '../assets/notes.png';
 import pyqsIcon from '../assets/pyqs.png';
 import aptitudeIcon from '../assets/aptitude.png';
 import quoraIcon from '../assets/quora.png';
-const subjectData = {
-  5: [
-    { name: 'Computer Network', icon: <FaNetworkWired size={30} /> },
-    { name: 'Machine Learning', icon: <FaBrain size={30} /> },
-    { name: 'FAFL', icon: <FaProjectDiagram size={30} /> },
-    { name: 'MIS', icon: <FaRobot size={30} /> },
-  ],
-  4: [
-    { name: 'Operating System', icon: <FaNetworkWired size={30} /> },
-    { name: 'Machine Learning', icon: <FaBrain size={30} /> },
-    { name: 'FAFL', icon: <FaProjectDiagram size={30} /> },
-    { name: 'MIS', icon: <FaRobot size={30} /> },
-  ],
-};
 
-const CoursesPage = () => {
-  const { semester } = useParams();
-  const navigate = useNavigate();
-  const subjects = subjectData[semester] || [];
-
-  // Sidebar state and toggle function
+const PYQSemester = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
   useEffect(() => {
@@ -54,16 +35,10 @@ const CoursesPage = () => {
     };
   }, [isSidebarOpen]);
 
-  const handleSubjectClick = (subjectName) => {
-    navigate(`/subjects/${encodeURIComponent(subjectName)}/documents`);
-  };
-
   return (
-    <div className="courses-page quora-container">
+    <div className="quora-container">
       {/* Hamburger Icon */}
-      <div className="hamburger" onClick={toggleSidebar} style={{ cursor: 'pointer' }}>
-        ☰
-      </div>
+      <div className="hamburger" onClick={toggleSidebar}>☰</div>
 
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
@@ -92,27 +67,23 @@ const CoursesPage = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="main-content">
-        <h1>Courses</h1>
-        <div className="search-box">
-          <FaSearch className="search-icon" />
-          <input type="text" placeholder="Search courses..." />
-        </div>
-        <div className="course-grid">
-          {subjects.map((subject, i) => (
+      <main className="main-content">
+        <h1>PYQ SEMESTER</h1>
+        <p className="subtitle">Select your semester to access Previous Year Questions</p>
+        <div className="semester-grid">
+          {Array.from({ length: 6 }, (_, index) => (
             <div
-              key={i}
-              className="course-card"
-              onClick={() => handleSubjectClick(subject.name)}
+              key={index}
+              className="semester-box"
+              onClick={() => navigate(`/pyq-courses/${index + 1}`)}
             >
-              <div className="icon">{subject.icon}</div>
-              <p>{subject.name}</p>
+              {`${index + 1} Semester`}
             </div>
           ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default CoursesPage;
+export default PYQSemester;
