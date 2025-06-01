@@ -1,4 +1,3 @@
-//mce-prep-frontend/src/components/PYQDocuments.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Documents.css';
@@ -8,7 +7,7 @@ import {
   getPYQs, 
   downloadPYQ, 
   deletePYQ, 
-  isUserAdmin,
+  isUserAdminSimple,
   verifyAdminCredentials
 } from '../api/pyqServices';
 import notesIcon from '../assets/notes.png';
@@ -36,8 +35,26 @@ const PYQDocuments = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
+  // Admin status check - Only check role, no token display
   useEffect(() => {
-    setIsAdmin(isUserAdmin());
+    const checkAdminStatus = () => {
+      const userRole = localStorage.getItem('userRole');
+      const adminToken = localStorage.getItem('adminToken');
+      
+      // Set admin status based on role and token presence
+      const adminStatus = userRole === 'admin' && adminToken;
+      setIsAdmin(adminStatus);
+    };
+    
+    checkAdminStatus();
+    
+    // Check when localStorage changes
+    const handleStorageChange = () => {
+      checkAdminStatus();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   useEffect(() => {
@@ -70,7 +87,6 @@ const PYQDocuments = () => {
     setError('');
     
     try {
-      console.log(`Fetching PYQs for subject: ${subject}`);
       const { data } = await getPYQs(subject);
       setPyqs(data);
     } catch (err) {
@@ -151,6 +167,12 @@ const PYQDocuments = () => {
   };
 
   const handleDelete = async (pyqId) => {
+    // Strict admin check - only admins can delete
+    if (!isAdmin) {
+      setError('Unauthorized: Only administrators can delete files.');
+      return;
+    }
+
     if (!showPasswordPrompt) {
       setDeleteConfirm(pyqId);
       setShowPasswordPrompt(true);
@@ -166,11 +188,11 @@ const PYQDocuments = () => {
     setError('');
 
     try {
-      // Verify admin credentials
+      // Verify admin credentials first
       await verifyAdminCredentials(adminPassword);
       
-      // Delete the PYQ
-      await deletePYQ(pyqId);
+      // Delete the PYQ with password
+      await deletePYQ(pyqId, adminPassword);
       
       // Refresh PYQs list
       await fetchPYQs();
@@ -181,8 +203,8 @@ const PYQDocuments = () => {
       setAdminPassword('');
     } catch (err) {
       console.error('Delete error:', err);
-      if (err.response?.status === 401) {
-        setError('Invalid admin password');
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setError('Invalid admin password or unauthorized access');
       } else {
         setError('Failed to delete PYQ. Please try again.');
       }
@@ -245,93 +267,98 @@ const PYQDocuments = () => {
           <h2>Navigation</h2>
         </div>
         <nav className="sidebar-nav">
-          <a href="/notes" className="nav-item">
-            <img src={notesIcon} alt="Notes" className="nav-icon" />
-            <span>Notes</span>
-          </a>
-          <a href="/pyqs" className="nav-item active">
-            <img src={pyqsIcon} alt="PYQs" className="nav-icon" />
-            <span>PYQs</span>
-          </a>
-          <a href="/aptitude" className="nav-item">
-            <img src={aptitudeIcon} alt="Aptitude" className="nav-icon" />
-            <span>Aptitude</span>
-          </a>
-          <a href="/quora" className="nav-item">
-            <img src={quoraIcon} alt="Quora" className="nav-icon" />
-            <span>Q&A</span>
-          </a>
+           <nav>
+                    <ul>
+                      <li onClick={() => navigate('/semester')}>
+                        <img src={notesIcon} alt="Courses" className="icon" /> Courses
+                      </li>
+                      <li onClick={() => navigate('/pyq-semester')}>
+                        <img src={pyqsIcon} alt="PYQs" className="icon" /> PYQs
+                      </li>
+                      <li onClick={() => navigate('/aptitude')}>
+                        <img src={aptitudeIcon} alt="Aptitude" className="icon" /> Aptitude
+                      </li>
+                      <li onClick={() => navigate('/quora')}>
+                        <img src={quoraIcon} alt="Quora" className="icon" /> Quora
+                      </li>
+                      <li onClick={() => navigate('/dashboard')}>
+                        <span className="icon">🏠</span> Home
+                      </li>
+                      <li onClick={() => navigate('/')}>
+                        <span className="icon">🚪</span> Log Out
+                      </li>
+                    </ul>
+                  </nav>
         </nav>
       </div>
 
       {/* Main Content */}
       <main className="main-content">
-        {/* Admin Upload Section */}
-         
-          <section className="upload-section">
-            <h2>Upload New PYQ</h2>
-            <form onSubmit={handleUpload} className="upload-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="pyq-name">PYQ Name *</label>
-                  <input
-                    type="text"
-                    id="pyq-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Mid-Semester Exam"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="pyq-year">Year *</label>
-                  <input
-                    type="text"
-                    id="pyq-year"
-                    value={year}
-                    onChange={(e) => setYear(e.target.value)}
-                    placeholder="e.g., 2023"
-                    required
-                  />
-                </div>
+        {/* Upload Section - Available to ALL users */}
+        <section className="upload-section">
+          <h2>Upload New PYQ</h2>
+          <form onSubmit={handleUpload} className="upload-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="pyq-name">PYQ Name *</label>
+                <input
+                  type="text"
+                  id="pyq-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g., Mid-Semester Exam"
+                  required
+                />
               </div>
-              
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="exam-type">Exam Type</label>
-                  <select
-                    id="exam-type"
-                    value={examType}
-                    onChange={(e) => setExamType(e.target.value)}
-                  >
-                    <option value="End-Sem">End-Semester</option>
-                    <option value="Mid-Sem">Mid-Semester</option>
-                    <option value="Quiz">Quiz</option>
-                    <option value="Assignment">Assignment</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="file-input">Choose File *</label>
-                  <input
-                    type="file"
-                    id="file-input"
-                    onChange={(e) => setFile(e.target.files[0])}
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label htmlFor="pyq-year">Year *</label>
+                <input
+                  type="text"
+                  id="pyq-year"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  placeholder="e.g., 2023"
+                  required
+                />
               </div>
-              
-              <button 
-                type="submit" 
-                className="upload-button"
-                disabled={loading}
-              >
-                {loading ? 'Uploading...' : 'Upload PYQ'}
-              </button>
-            </form>
-          </section>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="exam-type">Exam Type</label>
+                <select
+                  id="exam-type"
+                  value={examType}
+                  onChange={(e) => setExamType(e.target.value)}
+                >
+                  <option value="End-Sem">End-Semester</option>
+                  <option value="Mid-Sem">Mid-Semester</option>
+                  <option value="Quiz">Quiz</option>
+                  <option value="Assignment">Assignment</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="file-input">Choose File *</label>
+                <input
+                  type="file"
+                  id="file-input"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  required
+                />
+              </div>
+            </div>
+            
+            <button 
+              type="submit" 
+              className="upload-button"
+              disabled={loading}
+            >
+              {loading ? 'Uploading...' : 'Upload PYQ'}
+            </button>
+          </form>
+        </section>
         
         {/* Status Messages */}
         {error && (
@@ -348,8 +375,8 @@ const PYQDocuments = () => {
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
-        {showPasswordPrompt && (
+        {/* Delete Confirmation Modal - Only shows for Admin */}
+        {showPasswordPrompt && isAdmin && (
           <div className="modal-overlay">
             <div className="modal">
               <h3>Confirm Deletion</h3>
@@ -394,9 +421,7 @@ const PYQDocuments = () => {
               <div className="no-pyqs-icon">📄</div>
               <h3>No PYQs Available</h3>
               <p>No previous year questions have been uploaded for this subject yet.</p>
-              {isAdmin && (
-                <p className="admin-hint">Use the upload form above to add PYQs.</p>
-              )}
+              <p className="admin-hint">Use the upload form above to add PYQs.</p>
             </div>
           ) : (
             <div className="pyqs-grid">
@@ -432,10 +457,12 @@ const PYQDocuments = () => {
                     >
                       📥 Download
                     </button>
+                    {/* Delete button - ONLY visible to Admin users */}
                     {isAdmin && (
                       <button
                         onClick={() => handleDelete(pyq._id)}
                         className="delete-button"
+                        title="Admin: Delete this PYQ"
                       >
                         🗑️ Delete
                       </button>

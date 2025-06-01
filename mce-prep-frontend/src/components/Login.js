@@ -57,14 +57,16 @@ const Login = () => {
         role,
       });
 
-      console.log("Login successful:", response);
-
-      // Store user data
+      console.log("Login successful:", response);      // Store user data
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("userName", userName);
       localStorage.setItem("usn", usn);
-      localStorage.setItem("role", role);
+      localStorage.setItem("userRole", role);
       localStorage.setItem("isLoggedIn", "true");
+      // Set admin token if admin login
+      if (role === "admin") {
+        localStorage.setItem("adminToken", "admin-token");
+      }
       
 
       // Navigate to dashboard
@@ -152,13 +154,22 @@ const Login = () => {
               />{" "}
               Admin
             </label>
-          </div>
-
-          <div className="options">
+          </div>          <div className="options">
             <label>
               <input type="checkbox" /> Remember Me
             </label>
-            <a href="#">Forgot Password?</a>
+            <button 
+              onClick={() => {}} 
+              style={{ 
+                background: 'none',
+                border: 'none',
+                color: '#4a6889',
+                textDecoration: 'underline',
+                cursor: 'pointer'
+              }}
+            >
+              Forgot Password?
+            </button>
           </div>
         </div>
 

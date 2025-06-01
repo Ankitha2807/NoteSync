@@ -6,22 +6,54 @@ const PYQ = require('../models/PYQ');
 const path = require('path');
 const fs = require('fs');
 
-// Middleware to check if user is admin
+// Enhanced middleware to check if user is admin with strict validation
 const isAdmin = (req, res, next) => {
-  const { adminPassword, userRole } = req.body;
+  const { adminPassword } = req.body;
   const adminPass = req.headers['admin-password'];
   const role = req.headers['user-role'];
+  const authorization = req.headers['authorization'];
   
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
   
-  if ((adminPassword && adminPassword === ADMIN_PASSWORD) || 
-      (adminPass && adminPass === ADMIN_PASSWORD) ||
-      (userRole === 'admin') || 
-      (role === 'admin')) {
+  console.log('Admin check - Password provided:', !!adminPassword || !!adminPass);
+  console.log('Admin check - Role:', role);
+  console.log('Admin check - Has Authorization:', !!authorization);
+  
+  // Check for admin password in body or headers
+  const hasValidPassword = (adminPassword && adminPassword === ADMIN_PASSWORD) || 
+                          (adminPass && adminPass === ADMIN_PASSWORD);
+  
+  // Must have valid password AND admin role AND authorization token
+  if (hasValidPassword && role === 'admin' && authorization) {
+    console.log('Admin access granted');
     next();
   } else {
-    return res.status(403).json({ error: 'Admin access required' });
+    console.log('Admin access denied - Invalid credentials');
+    console.log('- Valid Password:', hasValidPassword);
+    console.log('- Admin Role:', role === 'admin');
+    console.log('- Has Token:', !!authorization);
+    
+    return res.status(403).json({ 
+      error: 'Admin access required',
+      details: 'Valid admin password, role, and authorization required'
+    });
   }
+};
+
+// Middleware to verify admin credentials for sensitive operations
+const verifyAdminCredentials = (req, res, next) => {
+  const role = req.headers['user-role'];
+  const authorization = req.headers['authorization'];
+  
+  // Check if user claims to be admin
+  if (role !== 'admin' || !authorization) {
+    return res.status(401).json({ 
+      error: 'Unauthorized access',
+      details: 'Admin privileges required'
+    });
+  }
+  
+  next();
 };
 
 // Ensure pyq-uploads directory exists
@@ -59,7 +91,7 @@ const upload = multer({
   }
 });
 
-// FIXED: Upload route - moved to /upload instead of /uploads
+// Upload route - Available to all users
 router.post('/upload', upload.single('file'), async (req, res) => {
   console.log('Upload route hit');
   console.log('Request body:', req.body);
@@ -76,12 +108,12 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const newPYQ = new PYQ({
       name,
       subject,
-      semester: req.body.semester || '1', // Add default semester
+      semester: req.body.semester || '1',
       year,
       examType: examType || 'End-Sem',
       filePath: file.path,
-      filename: file.filename, // Add filename field
-      fileSize: file.size, // Add file size
+      filename: file.filename,
+      fileSize: file.size,
       fileType: file.mimetype,
       userName: req.body.userName || 'Anonymous',
       usn: req.body.usn || 'N/A',
@@ -106,14 +138,14 @@ router.get('/:subject', async (req, res) => {
     const pyqs = await PYQ.find({ subject }).sort({ year: -1, uploadedAt: -1 });
     console.log('Found PYQs:', pyqs.length);
     
-    res.json({ data: pyqs }); // Return in expected format
+    res.json({ data: pyqs });
   } catch (err) {
     console.error('Error in /:subject route:', err);
     res.status(500).json({ error: 'Error fetching PYQs' });
   }
 });
 
-// Download a PYQ
+// Download a PYQ - Available to all users
 router.get('/download/:id', async (req, res) => {
   try {
     const pyq = await PYQ.findById(req.params.id);
@@ -129,51 +161,132 @@ router.get('/download/:id', async (req, res) => {
   }
 });
 
-// Verify admin credentials
-router.post('/verify-admin', (req, res) => {
+// Verify admin credentials - Enhanced security with role check
+router.post('/verify-admin', verifyAdminCredentials, (req, res) => {
   const { password } = req.body;
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
   
+  console.log('Admin verification attempt');
+  
+  if (!password) {
+    return res.status(400).json({ 
+      valid: false, 
+      error: 'Password is required' 
+    });
+  }
+  
   if (password === ADMIN_PASSWORD) {
-    res.json({ valid: true });
+    console.log('Admin verification successful');
+    res.json({ valid: true, message: 'Admin credentials verified' });
   } else {
-    res.status(401).json({ valid: false });
+    console.log('Admin verification failed - Invalid password');
+    res.status(401).json({ 
+      valid: false, 
+      error: 'Invalid admin password' 
+    });
   }
 });
 
-// DELETE ROUTE - Admin only
+// Verify admin status endpoint
+router.get('/auth/verify-admin', (req, res) => {
+  const adminToken = req.headers['authorization'];
+  const role = req.headers['user-role'];
+  
+  console.log('Admin status verification - Role:', role, 'Token:', !!adminToken);
+  
+  // Check if user has admin role and authorization token
+  if (role === 'admin' && adminToken) {
+    res.json({ 
+      isAdmin: true, 
+      message: 'Admin status confirmed' 
+    });
+  } else {
+    res.json({ 
+      isAdmin: false, 
+      message: 'Not an admin user' 
+    });
+  }
+});
+
+// DELETE ROUTE - STRICT ADMIN ONLY with enhanced security checks
 router.delete('/:id', isAdmin, async (req, res) => {
   try {
+    console.log('Delete request for PYQ:', req.params.id);
+    console.log('Delete request from user role:', req.headers['user-role']);
+    
     const pyq = await PYQ.findById(req.params.id);
     
     if (!pyq) {
       return res.status(404).json({ error: 'PYQ not found' });
     }
 
+    // Additional security log
+    console.log(`Admin ${req.headers['user-role']} attempting to delete PYQ: ${pyq.name} (${pyq.year})`);
+
     // Delete the physical file from pyq-uploads folder
     if (fs.existsSync(pyq.filePath)) {
       fs.unlinkSync(pyq.filePath);
+      console.log('Physical file deleted:', pyq.filePath);
+    } else {
+      console.log('Physical file not found, proceeding with database deletion');
     }
 
     // Delete the PYQ record from database
     await PYQ.findByIdAndDelete(req.params.id);
+    console.log('PYQ record deleted from database');
     
-    res.json({ message: 'PYQ deleted successfully' });
+    res.json({ 
+      message: 'PYQ deleted successfully',
+      deletedPYQ: {
+        id: pyq._id,
+        name: pyq.name,
+        year: pyq.year,
+        subject: pyq.subject
+      }
+    });
   } catch (err) {
     console.error('Error deleting PYQ:', err);
-    res.status(500).json({ error: 'Error deleting PYQ' });
+    res.status(500).json({ 
+      error: 'Error deleting PYQ',
+      details: err.message 
+    });
   }
 });
 
-// Get all PYQs (Admin only)
+// Get all PYQs (Admin only) - Enhanced security
 router.get('/admin/all', isAdmin, async (req, res) => {
   try {
+    console.log('Fetching all PYQs for admin user:', req.headers['user-role']);
     const pyqs = await PYQ.find({}).sort({ uploadedAt: -1 });
-    res.json(pyqs);
+    
+    res.json({
+      message: 'PYQs fetched successfully',
+      count: pyqs.length,
+      data: pyqs
+    });
   } catch (err) {
     console.error('Error fetching all PYQs:', err);
-    res.status(500).json({ error: 'Error fetching PYQs' });
+    res.status(500).json({ 
+      error: 'Error fetching PYQs',
+      details: err.message 
+    });
   }
+});
+
+// Error handling middleware for multer
+router.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: 'File too large. Maximum size is 10MB.' });
+    }
+  }
+  
+  if (error.message.includes('Only PDF, DOC, DOCX, JPG, JPEG, PNG files are allowed!')) {
+    return res.status(400).json({ error: error.message });
+  }
+  
+  console.error('Unexpected error:', error);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 module.exports = router;

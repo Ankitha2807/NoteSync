@@ -23,6 +23,10 @@ const Dashboard = () => {
     navigate('/semester'); 
   };
 
+  const goToPyqSemester = () => {
+    navigate('/pyq-semester');
+  };
+
   const goToAptitude = () => {
     navigate('/aptitude'); 
   };
@@ -65,7 +69,7 @@ const Dashboard = () => {
             <img src={notesIcon} alt="Notes" />
             <p>NOTES</p>
           </div>
-          <div className="option" onClick={goToSemester} style={{ cursor: 'pointer' }}>
+          <div className="option" onClick={goToPyqSemester} style={{ cursor: 'pointer' }}>
             <img src={pyqsIcon} alt="PYQs" />
             <p>PYQs</p>
           </div>

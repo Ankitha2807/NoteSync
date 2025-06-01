@@ -1,12 +1,39 @@
 // src/api/pyqServices.js 
 import api from './api';
 
-//const BASE_URL = 'http://localhost:5000/api/pyqs';
+// Check if user is admin - More secure version
+export const isUserAdmin = async () => {
+  try {
+    const userRole = localStorage.getItem('userRole');
+    const adminToken = localStorage.getItem('adminToken');
+    
+    // First check localStorage
+    if (userRole !== 'admin' || !adminToken) {
+      return false;
+    }
+    
+    // Verify with backend (optional additional security)
+    const response = await api.get('/pyqs/auth/verify-admin', {
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'user-role': userRole
+      }
+    });
+    
+    return response.data.isAdmin;
+  } catch (error) {
+    console.error('Admin verification failed:', error);
+    return false;
+  }
+};
 
-// Check if user is admin
-export const isUserAdmin = () => {
+// Alternative simpler version if you don't want backend verification
+export const isUserAdminSimple = () => {
   const userRole = localStorage.getItem('userRole');
-  return userRole === 'admin'; // fixed logic: only true if role is admin
+  const adminToken = localStorage.getItem('adminToken');
+  
+  // Both role and token must be present
+  return userRole === 'admin' && adminToken;
 };
 
 // Upload PYQ (allowed for both admin and student)
@@ -25,16 +52,11 @@ export const uploadPYQ = async (subject, file, name, year, examType = 'End-Sem')
 
   formData.append('userName', userName);
   formData.append('usn', usn);
-  formData.append('role', role); // role used by backend
+  formData.append('role', role);
 
   const headers = {
     'Content-Type': 'multipart/form-data',
   };
-
-  // If admin, include admin-password header
-  if (role === 'admin') {
-    headers['admin-password'] = 'admin123';
-  }
 
   console.log('Uploading PYQ with data:', {
     subject,
@@ -72,7 +94,6 @@ export const downloadPYQ = async (pyqId, filename) => {
       responseType: 'blob',
     });
 
-    // Trigger download
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
@@ -87,19 +108,23 @@ export const downloadPYQ = async (pyqId, filename) => {
   }
 };
 
-// Delete PYQ (admin only)
-export const deletePYQ = async (pyqId) => {
-  const role = localStorage.getItem('userRole') || 'student';
-
-  if (role !== 'admin') {
-    throw new Error('Unauthorized: Only admin can delete files.');
+// Delete PYQ (admin only) - Enhanced security
+export const deletePYQ = async (pyqId, adminPassword) => {
+  // Client-side admin check first
+  const userRole = localStorage.getItem('userRole');
+  const adminToken = localStorage.getItem('adminToken');
+  
+  if (userRole !== 'admin' || !adminToken) {
+    throw new Error('Unauthorized: Admin access required');
   }
 
   try {
     const response = await api.delete(`/pyqs/${pyqId}`, {
+      data: { adminPassword }, // Send password in request body
       headers: {
-        'admin-password': 'admin123',
-        'user-role': 'admin'
+        'user-role': userRole,
+        'admin-password': adminPassword,
+        'Authorization': `Bearer ${adminToken}`
       }
     });
     return response.data;
@@ -111,11 +136,51 @@ export const deletePYQ = async (pyqId) => {
 
 // Verify admin password for delete confirmation
 export const verifyAdminCredentials = async (password) => {
+  // Client-side admin check first
+  const userRole = localStorage.getItem('userRole');
+  const adminToken = localStorage.getItem('adminToken');
+  
+  if (userRole !== 'admin' || !adminToken) {
+    throw new Error('Unauthorized: Admin access required');
+  }
+
   try {
-    const response = await api.post('/pyqs/verify-admin', { password });
+    const response = await api.post('/pyqs/verify-admin', { 
+      password 
+    }, {
+      headers: {
+        'user-role': userRole,
+        'Authorization': `Bearer ${adminToken}`
+      }
+    });
     return response.data;
   } catch (error) {
     console.error('Admin verification error:', error);
+    throw error;
+  }
+};
+
+// Get all PYQs (admin only)
+export const getAllPYQsAdmin = async (adminPassword) => {
+  // Client-side admin check first
+  const userRole = localStorage.getItem('userRole');
+  const adminToken = localStorage.getItem('adminToken');
+  
+  if (userRole !== 'admin' || !adminToken) {
+    throw new Error('Unauthorized: Admin access required');
+  }
+
+  try {
+    const response = await api.get('/pyqs/admin/all', {
+      headers: {
+        'user-role': userRole,
+        'admin-password': adminPassword,
+        'Authorization': `Bearer ${adminToken}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all PYQs:', error);
     throw error;
   }
 };
