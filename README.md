@@ -212,6 +212,13 @@ Students can:
 4. Post questions and answers in the discussion forum
 5. Collaborate and learn from peers
 
+Admins can:
+
+1.File upload for notes and study materials
+2.Upload answers for the questions which the students are asking for
+3.Post aptitude questions
+4.Upload year wise question papers
+
 ---
 
 # Future Improvements
@@ -221,7 +228,6 @@ Possible future enhancements:
 * AI-based doubt answering system
 * Personalized learning recommendations
 * Quiz and test modules
-* File upload for notes and study materials
 * Notifications for answers and discussions
 
 ---
